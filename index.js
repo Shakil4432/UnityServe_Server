@@ -24,13 +24,13 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const volunteerNeedCollection = client.db('volunteerDB').collection('needPurpose');
 
 
     app.get('/volunteerneed',async(req,res)=>{
-        const cursor = volunteerNeedCollection.find();
+        const cursor = volunteerNeedCollection.find().sort({deadline:-1});
         const result = await cursor.toArray();
         res.send(result);
     })
