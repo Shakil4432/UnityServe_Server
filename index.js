@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 require('dotenv').config();
 const cors = require('cors')
@@ -33,6 +33,19 @@ async function run() {
         const cursor = volunteerNeedCollection.find().sort({deadline:-1});
         const result = await cursor.toArray();
         res.send(result);
+    })
+
+    app.post('/volunteerneed', async(req, res)=>{
+      const item = req.body;
+      const result = await volunteerNeedCollection.insertOne(item);
+      res.send(result);
+    })
+
+    app.get('/volunteerneed/:id',async(req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await volunteerNeedCollection.findOne(query);
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection
