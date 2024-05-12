@@ -27,6 +27,7 @@ async function run() {
     // await client.connect();
 
     const volunteerNeedCollection = client.db('volunteerDB').collection('needPurpose');
+    const requestedCollection = client.db('volunteerDB').collection('request');
 
 
     app.get('/volunteerneed',async(req,res)=>{
@@ -46,6 +47,12 @@ async function run() {
       const query = {_id: new ObjectId(id)};
       const result = await volunteerNeedCollection.findOne(query);
       res.send(result)
+    })
+
+    app.post('/requestedJob', async(req, res)=>{
+      const item = req.body;
+      const result = await requestedCollection.insertOne(item);
+      res.send(result);
     })
 
     // Send a ping to confirm a successful connection
