@@ -55,6 +55,25 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/requestedJob',async(req, res)=>{
+      const result = await requestedCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.get('/requestedJob/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query= {_id: new ObjectId(id)};
+      const result = await requestedCollection.findOne(query);
+      res.send(result);
+    })
+
+    app.delete('/requestedJob/:id', async(req, res)=>{
+      const id=req.params.id;
+      const query= {_id: new ObjectId(id)};
+      const result = await requestedCollection.deleteOne(query);
+      res.send(result);
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
