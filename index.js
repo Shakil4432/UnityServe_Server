@@ -7,7 +7,19 @@ const port = process.env.PORT || 7000;
 
 
 app.use(express.json());
-app.use(cors());
+//Must remove "/" from your production URL
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://volunteer-auth-206ee.web.app",
+      "https://volunteer-auth-206ee.firebaseapp.com",
+      
+    ],
+    credentials: true,
+  })
+);
 
 
 const uri = `mongodb+srv://${process.env.USER_ID}:${process.env.USER_PASS}@cluster0.q9r8zjr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -75,7 +87,7 @@ async function run() {
     })
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
