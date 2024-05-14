@@ -13,6 +13,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
+      "http://localhost:5175",
       "https://volunteer-auth-206ee.web.app",
       "https://volunteer-auth-206ee.firebaseapp.com",
       
@@ -36,7 +37,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    
 
     const volunteerNeedCollection = client.db('volunteerDB').collection('needPurpose');
     const requestedCollection = client.db('volunteerDB').collection('request');
@@ -60,6 +61,27 @@ async function run() {
       const result = await volunteerNeedCollection.findOne(query);
       res.send(result)
     })
+      app.put('/volunteerneed/:id',async(req,res)=>{
+      const updateItem = req.body;
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const options = {upsert: true};
+      const item = {
+        $set:{
+          name:updateItem.name, 
+          email:updateItem.email, 
+          thumbnail:updateItem.thumbnail, 
+          deadline:updateItem.deadline, 
+          description:updateItem.description, 
+          location:updateItem.location, 
+          postTitle:updateItem.postTitle, 
+          numOfVolunteersNeeded:updateItem.numOfVolunteersNeeded,
+          category:updateItem.category,
+        }
+      }
+      const result = await volunteerNeedCollection.updateOne(filter,item,options);
+      res.send(result);
+    })
 
     app.post('/requestedJob', async(req, res)=>{
       const item = req.body;
@@ -80,9 +102,16 @@ async function run() {
     })
 
     app.delete('/requestedJob/:id', async(req, res)=>{
-      const id=req.params.id;
+      const id= req.params.id;
       const query= {_id: new ObjectId(id)};
       const result = await requestedCollection.deleteOne(query);
+      res.send(result);
+    })
+
+    app.delete('/volunteerneed/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await volunteerNeedCollection.deleteOne(query);
       res.send(result);
     })
 
