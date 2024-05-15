@@ -42,6 +42,7 @@ async function run() {
     const volunteerNeedCollection = client.db('volunteerDB').collection('needPurpose');
     const requestedCollection = client.db('volunteerDB').collection('request');
     const archievementsCollection  = client.db('volunteerDB').collection('archievements');
+    const volunteersCollection = client.db('volunteerDB').collection('volunteers');
 
 
     app.get('/volunteerneed',async(req,res)=>{
@@ -118,6 +119,11 @@ async function run() {
 
     app.get('/archievements', async(req,res)=>{
       const result = await archievementsCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.get('/volunteers', async(req, res)=>{
+      const result = await volunteersCollection.find().toArray();
       res.send(result);
     })
 
