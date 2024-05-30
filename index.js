@@ -1,10 +1,9 @@
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const express = require('express');
-require('dotenv').config();
-const cors = require('cors')
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const express = require("express");
+require("dotenv").config();
+const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 7000;
-
 
 app.use(express.json());
 //Must remove "/" from your production URL
@@ -16,12 +15,10 @@ app.use(
       "http://localhost:5175",
       "https://volunteer-auth-206ee.web.app",
       "https://volunteer-auth-206ee.firebaseapp.com",
-      
     ],
     credentials: true,
   })
 );
-
 
 const uri = `mongodb+srv://${process.env.USER_ID}:${process.env.USER_PASS}@cluster0.q9r8zjr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -31,105 +28,129 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    
 
-    const volunteerNeedCollection = client.db('volunteerDB').collection('needPurpose');
-    const requestedCollection = client.db('volunteerDB').collection('request');
-    const archievementsCollection  = client.db('volunteerDB').collection('archievements');
-    const volunteersCollection = client.db('volunteerDB').collection('volunteers');
+    const volunteerNeedCollection = client
+      .db("volunteerDB")
+      .collection("needPurpose");
+    const requestedCollection = client.db("volunteerDB").collection("request");
+    const archievementsCollection = client
+      .db("volunteerDB")
+      .collection("archievements");
+    const volunteersCollection = client
+      .db("volunteerDB")
+      .collection("volunteers");
+    const volunteerHours = client
+      .db("volunteerDB")
+      .collection("volunteerHours");
 
+    app.get("/volunteerneed", async (req, res) => {
+      const cursor = volunteerNeedCollection.find().sort({ deadline: -1 });
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
-    app.get('/volunteerneed',async(req,res)=>{
-        const cursor = volunteerNeedCollection.find().sort({deadline:-1});
-        const result = await cursor.toArray();
-        res.send(result);
-    })
-
-    app.post('/volunteerneed', async(req, res)=>{
+    app.post("/volunteerneed", async (req, res) => {
       const item = req.body;
       const result = await volunteerNeedCollection.insertOne(item);
       res.send(result);
-    })
+    });
 
-    app.get('/volunteerneed/:id',async(req, res)=>{
+    app.get("/volunteerneed/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await volunteerNeedCollection.findOne(query);
-      res.send(result)
-    })
-      app.put('/volunteerneed/:id',async(req,res)=>{
+      res.send(result);
+    });
+    app.put("/volunteerneed/:id", async (req, res) => {
       const updateItem = req.body;
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)};
-      const options = {upsert: true};
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
       const item = {
-        $set:{
-          name:updateItem.name, 
-          email:updateItem.email, 
-          thumbnail:updateItem.thumbnail, 
-          deadline:updateItem.deadline, 
-          description:updateItem.description, 
-          location:updateItem.location, 
-          postTitle:updateItem.postTitle, 
-          numOfVolunteersNeeded:updateItem.numOfVolunteersNeeded,
-          category:updateItem.category,
-        }
-      }
-      const result = await volunteerNeedCollection.updateOne(filter,item,options);
+        $set: {
+          name: updateItem.name,
+          email: updateItem.email,
+          thumbnail: updateItem.thumbnail,
+          deadline: updateItem.deadline,
+          description: updateItem.description,
+          location: updateItem.location,
+          postTitle: updateItem.postTitle,
+          numOfVolunteersNeeded: updateItem.numOfVolunteersNeeded,
+          category: updateItem.category,
+        },
+      };
+      const result = await volunteerNeedCollection.updateOne(
+        filter,
+        item,
+        options
+      );
       res.send(result);
-    })
+    });
 
-    app.post('/requestedJob', async(req, res)=>{
+    app.post("/requestedJob", async (req, res) => {
       const item = req.body;
       const result = await requestedCollection.insertOne(item);
       res.send(result);
-    })
+    });
 
-    app.get('/requestedJob',async(req, res)=>{
+    app.get("/requestedJob", async (req, res) => {
       const result = await requestedCollection.find().toArray();
       res.send(result);
-    })
+    });
 
-    app.get('/requestedJob/:id', async(req, res)=>{
+    app.get("/requestedJob/:id", async (req, res) => {
       const id = req.params.id;
-      const query= {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await requestedCollection.findOne(query);
       res.send(result);
-    })
+    });
 
-    app.delete('/requestedJob/:id', async(req, res)=>{
-      const id= req.params.id;
-      const query= {_id: new ObjectId(id)};
+    app.delete("/requestedJob/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
       const result = await requestedCollection.deleteOne(query);
       res.send(result);
-    })
+    });
 
-    app.delete('/volunteerneed/:id', async(req, res)=>{
+    app.delete("/volunteerneed/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await volunteerNeedCollection.deleteOne(query);
       res.send(result);
-    })
+    });
 
-    app.get('/archievements', async(req,res)=>{
+    app.get("/archievements", async (req, res) => {
       const result = await archievementsCollection.find().toArray();
       res.send(result);
-    })
+    });
 
-    app.get('/volunteers', async(req, res)=>{
+    app.get("/volunteers", async (req, res) => {
       const result = await volunteersCollection.find().toArray();
       res.send(result);
-    })
+    });
+
+    app.post("/log-hours", async (req, res) => {
+      const hours = req.body;
+      const result = await volunteerHours.insertOne(hours);
+      res.send(result);
+    });
+
+    app.get("/log-hours", async (req, res) => {
+      const result = await volunteerHours.find().toArray();
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -137,11 +158,10 @@ async function run() {
 }
 run().catch(console.dir);
 
+app.get("/", (req, res) => {
+  res.send("Server is running");
+});
 
-app.get('/',(req,res)=>{
-    res.send('Server is running');
-})
-
-app.listen(port, ()=>{
-    console.log(`server running on port : ${port} `)
-})
+app.listen(port, () => {
+  console.log(`server running on port : ${port} `);
+});
